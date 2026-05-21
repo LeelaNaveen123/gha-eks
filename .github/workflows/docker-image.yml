@@ -17,5 +17,16 @@ jobs:
         with:
           username: "${{ secrets.DOCKER_USERNAME }}"
           password: "${{ secrets.DOCKER_PASSWORD }}"
+      - name: push to Docker Hub
+        run: docker push leelanaveen123/pyapp:${GITHUB_SHA::7}
+      - name: Install yq
+        uses: mikefarah/yq@v4.44.3
+      - name: Update deployment.yml with latest docker tag
+        run: |
+          # Short commit hash
+          SHORT_SHA=${GITHUB_SHA::7}
+          # Update image tag in deployment.yaml
+          yq -i '.spec.template.spec.containers[0].image = "leelanaveen123/pyapp:'"$SHORT_SHA"'"' ./k8s/pyapp-deployment.yml
+
       
            
